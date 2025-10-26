@@ -9,18 +9,19 @@ func main() {
 	/*
 	 make(chan 型)←チャネルを作成。
 	 これはゴルーチン同士で値を受け渡すために使用される
+
+	 これを使って停止用チャネルというものを作る
+	 更にこれを標準ライブラリー化したものがcontext(ctx)
+	 以下がgoで慣習的に書く例
+	 ctx := context.Background()
+	 ctx, cancel := context.WithCancel(ctx)
 	*/
-	a := make(chan string)
-	b := make(chan string)
+
+	ch := make(chan string)
 
 	go func() {
-		time.Sleep(200 * time.Microsecond)
-		a <- "Aのmessage"
-	}()
-
-	go func() {
-		time.Sleep(100 * time.Millisecond)
-		b <- "Bのmessage"
+		time.Sleep(1 * time.Second)
+		ch <- "仕事終わったよ"
 	}()
 
 	/* range　chはcloseされたら終わる。
@@ -31,11 +32,9 @@ func main() {
 	*/
 
 	select {
-	case x := <-a:
-		fmt.Println(x)
-	case y := <-b:
-		fmt.Println(y)
-	default:
-		fmt.Println("mada")
+	case msg := <-ch:
+		fmt.Println("受信:", msg)
+	case <-time.After(500 * time.Millisecond):
+		fmt.Println("タイムアウト")
 	}
 }
