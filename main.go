@@ -17,11 +17,11 @@ func main() {
 	 ctx, cancel := context.WithCancel(ctx)
 	*/
 
-	ch := make(chan string)
+	stop := make(chan struct{})
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		ch <- "仕事終わったよ"
+		close(stop)
 	}()
 
 	/* range　chはcloseされたら終わる。
@@ -30,11 +30,14 @@ func main() {
 		fmt.Println(v)
 	}
 	*/
-
-	select {
-	case msg := <-ch:
-		fmt.Println("受信:", msg)
-	case <-time.After(500 * time.Millisecond):
-		fmt.Println("タイムアウト")
+	for {
+		select {
+		case <-stop:
+			fmt.Println("停止検知")
+			return
+		default:
+			fmt.Println("処理中")
+			time.Sleep(300 * time.Millisecond)
+		}
 	}
 }
