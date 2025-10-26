@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -9,20 +10,32 @@ func main() {
 	 make(chan 型)←チャネルを作成。
 	 これはゴルーチン同士で値を受け渡すために使用される
 	*/
-	ch := make(chan int)
+	a := make(chan string)
+	b := make(chan string)
 
 	go func() {
-		ch <- 1
-		ch <- 2
-		ch <- 3
-		close(ch)
+		time.Sleep(200 * time.Microsecond)
+		a <- "Aのmessage"
 	}()
 
-	// range　chはcloseされたら終わる。
-	// closeは送り手が送るのがマナー
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		b <- "Bのmessage"
+	}()
+
+	/* range　chはcloseされたら終わる。
+	 //closeは送り手が送るのがマナー
 	for v := range ch {
 		fmt.Println(v)
 	}
+	*/
 
-	fmt.Println("owari ★")
+	select {
+	case x := <-a:
+		fmt.Println(x)
+	case y := <-b:
+		fmt.Println(y)
+	default:
+		fmt.Println("mada")
+	}
 }
