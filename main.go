@@ -13,9 +13,16 @@ func main() {
 
 	go func() {
 		ch <- 1
-		fmt.Println("A: send done")
+		ch <- 2
+		ch <- 3
+		close(ch)
 	}()
 
-	x := <-ch
-	fmt.Println("B: received", x)
+	// range　chはcloseされたら終わる。
+	// closeは送り手が送るのがマナー
+	for v := range ch {
+		fmt.Println(v)
+	}
+
+	fmt.Println("owari ★")
 }
