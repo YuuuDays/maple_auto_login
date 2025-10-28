@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -17,11 +18,11 @@ func main() {
 	 ctx, cancel := context.WithCancel(ctx)
 	*/
 
-	stop := make(chan struct{})
+	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		close(stop)
+		cancel() // ← 停止合図（close(stop) と同じ役割）
 	}()
 
 	/* range　chはcloseされたら終わる。
@@ -32,7 +33,7 @@ func main() {
 	*/
 	for {
 		select {
-		case <-stop:
+		case <-ctx.Done():
 			fmt.Println("停止検知")
 			return
 		default:
